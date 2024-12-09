@@ -27,13 +27,16 @@ public class ForgeBootstrap extends Bootstrap {
 
         var ret = new ArrayList<SecureJar>();
         var bootlayer = getClass().getModule().getLayer();
-        var width = jars.stream().mapToInt(j -> j.moduleDataProvider().name().length()).max().orElse(0) + 1;
+        int width = DEBUG
+                ? jars.stream().mapToInt(j -> j.moduleDataProvider().name().length()).max().orElse(0) + 1
+                : 0;
 
         if (DEBUG) log("Found classpath:");
         for (int x = 0; x < classpath.size(); x++) {
             var jar = jars.get(x);
-            var name = jar.moduleDataProvider().name();
-            var paths = classpath.get(x);
+            var meta = jar.moduleDataProvider();
+            var name = meta.name();
+            Path[] paths = DEBUG ? classpath.get(x) : null;
 
             if (bootlayer.findModule(name).isPresent()) {
                 log("  Bootstrap: ", width, name, paths);
@@ -41,7 +44,6 @@ public class ForgeBootstrap extends Bootstrap {
             }
 
             // If it's a mod we'll find it later
-            var meta = jar.moduleDataProvider();
             if (meta.findFile(MODS_TOML).isPresent() ||
                 meta.findFile(MINECRAFT).isPresent() ||
                 meta.getManifest().getMainAttributes().getValue(MOD_TYPE) != null) {

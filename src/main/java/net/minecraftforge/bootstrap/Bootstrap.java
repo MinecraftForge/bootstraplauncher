@@ -198,13 +198,15 @@ public class Bootstrap {
 
         var ret = new ArrayList<SecureJar>();
         var bootlayer = getClass().getModule().getLayer();
-        var width = jars.stream().mapToInt(j -> j.moduleDataProvider().name().length()).max().orElse(0) + 1;
+        int width = DEBUG
+                ? jars.stream().mapToInt(j -> j.moduleDataProvider().name().length()).max().orElse(0) + 1
+                : 0;
 
         if (DEBUG) log("Found classpath:");
         for (int x = 0; x < classpath.size(); x++) {
             var jar = jars.get(x);
             var name = jar.moduleDataProvider().name();
-            var paths = classpath.get(x);
+            Path[] paths = DEBUG ? classpath.get(x) : null;
 
             if (bootlayer.findModule(name).isPresent()) {
                 log("  Bootstrap: ", width, name, paths);
